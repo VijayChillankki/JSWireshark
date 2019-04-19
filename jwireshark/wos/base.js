@@ -1739,12 +1739,12 @@ _export("LcontextMenu",[],function( req,def,o ){
 		}
 		o.state = 0;
 	};	
-	/*
+	
 	if (document.addEventListener) {
         document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
+            // e.preventDefault();
         }, false);
-	*/
+	
     } else {
         document.attachEvent('oncontextmenu', function(){
 		window.event.returnValue = false;
