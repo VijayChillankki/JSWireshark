@@ -1738,18 +1738,19 @@ _export("LcontextMenu",[],function( req,def,o ){
 			( o.node  = o.node.del( ) ) : void 0;
 		}
 		o.state = 0;
-	};	
-	
+	};
+
+	/*
 	if (document.addEventListener) {
-        document.addEventListener('contextmenu', function(e) {
+          document.addEventListener('contextmenu', function(e) {
             // e.preventDefault();
-        }, false);
-	
-    } else {
-        document.attachEvent('oncontextmenu', function(){
+          }, false);
+    	} else {
+          document.attachEvent('oncontextmenu', function(){
 		window.event.returnValue = false;
-        });
-    }
+          });
+    	}
+	*/
 });
 
 
