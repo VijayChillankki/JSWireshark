@@ -370,7 +370,7 @@ o.loadfile = function( filename, freader ){
 	if( ( tmp = (/^(.+)\.(\w{1,})$/).exec( filename ) ) && this.acceptedExt.indexOf( tmp[ 2 ] ) > -1 ){
 					
 		// set title & enabled menu			
-		this.title( "Wireshark - "+filename, 0x02 );
+		this.title( "JS-Wireshark - "+filename, 0x02 );
 		this.getModule("menu").any("a>1",function( btn ){ btn.disabled( 0 ); });
 		
 		// read	
@@ -383,7 +383,7 @@ o.loadfile = function( filename, freader ){
 		req("LprocessManager").createProcess(
 			"msgbox",
 			null,
-			{ title:"Wireshark - pcap parser error", msg: "\""+filename+"\" is not a valid file, bad magic number." },
+			{ title:"JS-Wireshark - pcap parser error", msg: "\""+filename+"\" is not a valid file, bad magic number." },
 			0x0c | 0x100
 		);
 		else{
@@ -418,7 +418,7 @@ o.loadfile = function( filename, freader ){
 	req("LprocessManager").createProcess(
 		"msgbox",
 		this.token,
-		{ title:"Wireshark", msg: "\""+filename+"\" unsupported file, try again with another file !" },
+		{ title:"JS-Wireshark", msg: "\""+filename+"\" unsupported file, try again with another file !" },
 		0x04 | 0x100 | 0x80
 	);;
 };
@@ -429,7 +429,7 @@ _export("Gwireshark",["LGwireshark"],function( req, def, o, libw ){
 return function( slf ){
 	
 	// window structure
-	this.title  = "Wireshark";
+	this.title  = "JS-Wireshark";
 	this.width  = window.screen.width;
 	this.height = window.screen.height;
 	this.top    = this.left = this.swind.close = this.swind.hide = 0;
@@ -470,7 +470,7 @@ return function( slf ){
 	req("LprocessManager").createProcess(
 		"msgbox",
 		this.token,
-		{ title:"Wireshark", msg: "Do you want to close this \""+this.fd.name+"\" ?" },
+		{ title:"JS-Wireshark", msg: "Do you want to close this \""+this.fd.name+"\" ?" },
 		0x08 | 0x300,
 		function( bool ){
 			if(bool)(slf.raz( ),slf.find("input[type='file']")[0].click( ));;;
