@@ -213,7 +213,7 @@ function loadPcap( __binary__ ){
 	// magic number
 	// BAD magic number
 	if( pcaphdr.magic_number != 0xD4C3B2A1 ){
-		return 0xBAD01001;
+		return this.data = { e:0xBAD01001 };
 	}
 	pcaphdr.network = LittleEndian( pcaphdr.network, 4 );
 	off = struct.sizeof( pcap_hdr_s( ) );
@@ -240,7 +240,7 @@ function loadPcap( __binary__ ){
 		e = 0xBAD0103;
 	}
 
-return {
+return ( this.data = {
 	e: 		e,
 	header:		pcaphdr,
 	frame : 	frame,
@@ -254,7 +254,7 @@ return {
 	// then get peek see error 
 	offset: 	off,
 
-};
+} );
 }
 /*
 # load file pcapng
@@ -297,7 +297,7 @@ function loadPcapng( __file__ ){
 	// BAD magic number
 	if( !( pcapmb.type == 0x0A0D0D0A ) ){
 		
-		return { e: 0xBAD01001 };
+		return this.data = { e: 0xBAD01001 };
 	}
 	
 
@@ -405,7 +405,7 @@ function loadPcapng( __file__ ){
 
 	}catch(e){ console.log(e); };
 	/**/	
-return {
+return ( this.data = {
 	e: 		e,
 	pcapng:		!0,
 
@@ -421,7 +421,7 @@ return {
 	// if offset is different to EOF
 	// then get peek see error 
 	offset: 	off,
-	};
+	} );
 }
 
 // export libpcap to window
@@ -448,4 +448,5 @@ window.libpcap.idbOpts = idbOpts;
 window.libpcap.shbOpts = shbOpts;
 
 })( );
+
 

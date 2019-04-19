@@ -139,6 +139,49 @@ return {
 	addr:		uint32,
 };
 }
+// move to wirehark.js
+function proto_ata_hdr( ){
+return{
+	hdw_dst:	"6",
+	cst_eth_dst:	uint16,
+	eth_src_mac:	uint16,
+	eth_type:	uint16,
+
+	_:{
+		version:4, flags:4, error:8
+	},
+	
+	major:		uint16,
+	minor:		uint8,
+	command:	uint8,
+
+	tag:		uint32,
+	arg:		uint32
+};
+}
+function homeplug_887b( ){
+return{
+	mac_control:{
+		reserver:1, mac_len:4
+	},
+	mac_management:{
+		mac_ev:3, mac_et:5
+	},
+	mac_mel:	uint8,
+	vendor:		uint32,
+}
+};
+//repolace to wireshark.js
+function homeplug_88e1( ){
+return{
+
+	version:	uint8,
+	type:		uint32,
+	frag:		uint32
+
+}
+};
+
 var protocolType = {
 
 	0x6000:"DEC",
@@ -201,13 +244,13 @@ var protocolType = {
 
 }, 
 // some port UDP & TCP
-tcp_ports = {
+tcp_port = {
 	7:"echo/ICMP",
 	20:"FTP",21:"FTP",22:"SSH",23:"TelNet",25:"SMTP",	
 	53:"DNS", 69:"TFTP",80:"http",
 	109:"POP2",110:"POP3",
 	137:"NetBIOS", 138:"NetBIOS-ns", 139:"NetBIOS-dgm",
-	143:"IMAP",194:"IRC", 443:"https", 445:"SMB", 465:"SMTPS",
+	143:"IMAP",194:"IRC", 443:"HTTPS", 445:"SMB", 465:"SMTPS",
 	636:"SSL/TLS",
 	990:"FTPS",993:"IMAP/SSL",995:"POP3/SSL",1080:"SOCKS",
 	1337:"L33t",1883:"MQTT",2164:"DynDNS",
@@ -223,17 +266,18 @@ tcp_ports = {
 
 },
 
+
 net = {
 
 	/*toString*/	
 	macAddrToStr:function( ptr ){
-	return vscanf( 
+	return jno2.vscanf( 
 		"%h:%h:%h:%h:%h:%h",
 		ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5]
 	 );
 	},
 	ipv6AddrToStr:function( ptr ){
-	return vscanf( 
+	return jno2.vscanf( 
 		"%h%h:%h%h:%h%h:%h%h:%h%h:%h%h:%h%h:%h%h",
 		ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], 
 		ptr[5], ptr[6], ptr[7], ptr[8], ptr[9],
@@ -249,5 +293,163 @@ net = {
 	htons:function( ip ){
 	return LittleEndian( ip < 0 ? base.hex2dec( base.dec2hext( ip ) ) : ip, 4 );
 	},
-  
-  };
+	/*
+	# JSwireshark 
+	*/
+	readFrame:function( frame, j ){
+		var frm = {}, off, __sn, off = 0,
+		    eth, arp, ipv4, ipv6, tcp;
+		//	
+		// Ethernet structure
+		struct.buffer2struct(
+			frame,
+			frm.eth = eth = eth_hdr( ),
+			0
+		);
+		
+		// itemsinfo
+		this.items.update( j, [,,
+			net.macAddrToStr( frm.eth.hdw_src_addr ),
+			net.macAddrToStr( frm.eth.hdw_dst_addr )
+		] );
+
+		// ARP Trame
+		if( eth.eth_type === 0x0806 ){
+			struct.buffer2struct(
+				frame,
+				frm.arp = arp_hdr( ),
+				struct.sizeof( eth_hdr( ) )
+			);
+
+			this.items.update(j, [,,,,"ARP",, 
+				jno2.vscanf( 
+					string.info.arp[ frm.arp.op ],
+					net.ipToStr( frm.arp.ip_src_addr ),
+					frm.arp.op == 1 ? net.ipToStr( frm.arp.ip_dst_addr ) :
+					net.macAddrToStr( frm.eth.hdw_src_addr ) )
+ 			] );
+			this.items.class( j, "arp" );
+
+		// IPV4 & IPV6 Parsing TCP/IP
+		}else if( eth.eth_type === 0x0800 || eth.eth_type === 0x86DD ){
+			
+			var tmp = eth.eth_type === 0x0800 ? "ipv4" : "ipv6",
+			    __s = tmp == "ipv4" ? ipv4_hdr : ipv6_hdr, sizeof;
+					
+			struct.buffer2struct(
+				frame,
+				frm[ tmp ] = __s( ),
+				off += struct.sizeof( eth_hdr( ) )
+			);
+			
+this.stat.puship( eth.eth_type, "src", frm );
+this.stat.puship( eth.eth_type, "dst", frm );
+			// itemsinfo
+			this.items.update( j, [,,
+				tmp === "ipv4" ? net.ipToStr( frm[ tmp ].ip_src_addr ) : net.ipv6AddrToStr( frm[ tmp ].src_addr ),
+				tmp === "ipv4" ? net.ipToStr( frm[ tmp ].ip_dst_addr ) : net.ipv6AddrToStr( frm[ tmp ].dst_addr )
+			] );
+				
+			off += struct.sizeof( __s( ) ); 
+			__s = null;
+
+			// TCP Connection
+			if( ( eth.eth_type === 0x86DD && frm[ tmp ].next == 0x06 ) || ( eth.eth_type === 0x0800 && frm[ tmp ].protocol == 0x06)  )  
+			__s = tcp_hdr,__sn = "tcp";
+
+			// ICMP			
+			else if( eth.eth_type === 0x0800 && frm[ tmp ].protocol == 0x01  )
+			__s = icmp_hdr, __sn = "icmp";
+
+			// IGMP			
+			else if( frm[ tmp ].protocol == 0x02  || frm[ tmp ].next == 0x02  )
+			__s = igmp_hdr, __sn = "igmp";
+			// ICMPV6
+			else if( eth.eth_type === 0x86DD && frm[ tmp ].next == 0x3A )
+			__s = icmpv6_hdr, __sn = "icmpv6";
+			// selon le port 
+			// orienter requete avec le bourage TCP
+			// UDP
+			else if( ( ( eth.eth_type === 0x86DD || eth.eth_type === 0x0800  ) && ( frm[ tmp ].next === 0x11 || frm[ tmp ].protocol === 0x11 ) ) ){
+			__s = udp_hdr,__sn = "udp";
+			
+
+			// Review
+			}else
+			__s = { payload:"" };;
+			
+		
+
+			struct.buffer2struct(
+				frame,
+				frm[ __sn ] = __s( ),
+				off
+			);
+
+			off += struct.sizeof( __s( ) );
+			
+			if( __sn == "tcp" ){
+			this.items.update(j, [,,,,,, 
+				jno2.vscanf( 
+					string.info.tcp[0],
+					frm.tcp.port_src,
+					frm.tcp.port_dst,
+					string.info.tcp.flag( frm.tcp ), frm.tcp.seq, frm.tcp.n_ack, frm.tcp.window, frm.tcp.flag.offset
+			) ] );
+			}
+			if( __sn == "udp" && frm.udp.port_src == 53  ){
+				//console.log( frm.udp );
+				this.items.update(j, [,,,,,, 
+				jno2.vscanf( 
+					string.info.dns[0],
+					"",255, ""
+				) ] );
+			}
+			//
+			this.items.class( j, 
+				
+				__sn == "tcp" && ( frm[ __sn ].port_dst == 80 || frm[ __sn ].port_dst == 443 ) ? "http" : __sn 
+			);
+			this.items.update(j, [,,,, 
+				__sn == "tcp" && tcp_port[ frm[ __sn ].port_dst ] ?
+				tcp_port[ frm[ __sn ].port_dst ] :
+				__sn == "udp" && udp_port[ frm[ __sn ].port_dst ] ?
+				udp_port[ frm[ __sn ].port_dst ] :
+				__sn.toUpperCase( ) 
+
+			] );
+
+		
+		// HomePlug Protocol
+		}else if( eth.eth_type === 0x88E1 || eth.eth_type === 0x887B ){
+			__s = eth.eth_type === 0x88E1 ? 
+			homeplug_88e1 : homeplug_887b;
+
+			struct.buffer2struct(
+				frame,
+				frm["homeplug"] = __s( ),
+				struct.sizeof( eth_hdr( ) )
+			);
+
+
+			this.items.update(j, [,,,,protocolType[ eth.eth_type ] ,, string.info.homeplug[ eth.eth_type ] ]);
+		// ATA Protocol	
+		}else if( eth.eth_type === 0x88A2 ){
+
+		}else
+		this.items.update(
+			j,
+			[,,,,"Unknow",, "unknown" ]
+		);
+		
+		//console.log( frm );
+		delete eth;
+
+	return frm;
+	},
+};
+
+
+
+
+
