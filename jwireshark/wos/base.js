@@ -1378,9 +1378,9 @@ return function( _, htoken, msg, typ  ){
 	
 	var type = {
 		0x02:null,
-		0x04:"/icon/status/task-attention.png",
+		0x04:"/icon/actions/process-stop.png",
 		0x08:"/icon/status/dialog-information.png",
-		0x0A:"/icon/status/user-busy.png",
+		0x0A:"/icon/status/dialog-information.png",
 		0x0C:"/icon/actions/process-stop.png"
 		
 	};

@@ -258,10 +258,10 @@ tcp_port = {
 	3389:"DPD",5432:"PostgreSQL",6000:"X11",9050:"TorProject", 9150:"TorProject"	
 }, udp_port = {
 	
-	7:"echo/ICMP",53:"DNS",20:"FTP",21:"FTP",23:"TelNet",
+	7:"echo/ICMP",53:"DNS",20:"FTP",21:"FTP",22:"SSH",23:"TelNet",
 	25:"SMTP",67:"BOOTSTRAPPC",68:"BOOTSTRAPPS",69:"TFTP",
 	137:"NetBIOS",138:"NetBIOS-ns",139:"NetBIOS-dgm",
-	161:"SNMP",445:"SMB",546:"DHCP",6000:"X11",
+	161:"SNMP",445:"SMB",546:"DHCP",5060:"SIP",5061:"SIP/TLS",6000:"X11",
 	1337:"L33t", 2164:"DynDNS"
 
 },
