@@ -1,7 +1,9 @@
-## JSWireshark
+<img src="https://github.com/lmangani/JSWireshark/raw/master/jwireshark/wos/icon/favicon.png" width=100 />
+
+# JSWireshark
 A legacy JS Wireshark for the browser. No Backend.
 
-## Usage
+### Usage
 ```
 npm install
 npm start
