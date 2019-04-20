@@ -1,4 +1,5 @@
 ## JSWireshark
+A legacy JS Wireshark for the browser. No Backend.
 
 ## Usage
 ```
