@@ -439,7 +439,8 @@ o.loadapi = function( filename, freader, query ){
 	        this.title( "JS-Wireshark - "+filename, 0x02 );
 	        this.getModule("menu").any("a>1",function( btn ){ btn.disabled( 0 ); });
 		var freader;
-                fetch('//192.168.88.245:3000/?query='+query, {
+		var url = "//" + (window.location.hostname || "127.0.0.1") + ":3000";
+                fetch(url+'/?query='+query, {
                         method: 'GET',
                 }).then(function(fresponse) {
                      /* handle response */
