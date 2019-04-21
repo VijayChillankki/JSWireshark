@@ -420,21 +420,17 @@ this.stat.puship( eth.eth_type, "dst", frm );
 				__sn.toUpperCase( ) 
 
 			] );
-			this.items.update(j, [,,,,,, 
-				__sn == "tcp" && tcp_port[ frm[ __sn ].port_src ] ?
-				tcp_port[ frm[ __sn ].port_src ] :
-				__sn == "udp" && udp_port[ frm[ __sn ].port_src ] ?
-				udp_port[ frm[ __sn ].port_src ] :
-				__sn.toUpperCase( ) 
-
-			] );
 
 			// UDP PORTS
 			if( __sn == "udp" ){
 				console.log( 'UDP PACKET!',frm.udp );
 				this.items.update(j, [,,,frm.udp.port_src.toString(),,frm.udp.port_dst.toString()
 				] );
-			}
+			} else if( __sn == "tcp" ){
+                                console.log( 'TCP PACKET!',frm.udp );
+                                this.items.update(j, [,,,frm.tcp.port_src.toString(),,frm.tcp.port_dst.toString()
+                                ] );
+                        }
 
 
 		
