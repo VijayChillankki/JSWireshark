@@ -28,7 +28,7 @@ return{
 });
 _export("__ENV__",[],function( req, def ){
 return {
-	sysdir:"./wos",
+	sysdir:"./jwireshark/wos",
 };
 });
 
