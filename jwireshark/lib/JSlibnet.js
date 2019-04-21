@@ -411,6 +411,7 @@ this.stat.puship( eth.eth_type, "dst", frm );
 			this.items.class( j, 
 				__sn == "tcp" && ( frm[ __sn ].port_dst == 80 || frm[ __sn ].port_dst == 443 ) ? "http" : __sn 
 			);
+			// PROTO DETECTION BY PORT
 			this.items.update(j, [,,,,,, 
 				__sn == "tcp" && tcp_port[ frm[ __sn ].port_dst ] ?
 				tcp_port[ frm[ __sn ].port_dst ] :
@@ -419,6 +420,15 @@ this.stat.puship( eth.eth_type, "dst", frm );
 				__sn.toUpperCase( ) 
 
 			] );
+			this.items.update(j, [,,,,,, 
+				__sn == "tcp" && tcp_port[ frm[ __sn ].port_src ] ?
+				tcp_port[ frm[ __sn ].port_src ] :
+				__sn == "udp" && udp_port[ frm[ __sn ].port_src ] ?
+				udp_port[ frm[ __sn ].port_src ] :
+				__sn.toUpperCase( ) 
+
+			] );
+
 			// UDP PORTS
 			if( __sn == "udp" ){
 				console.log( 'UDP PACKET!',frm.udp );

@@ -195,7 +195,7 @@ return function( _, parent, d, i  ){
 	// window structure
 	this.title  = "Wireshark - frame [ "+i+" ]";
 	this.width  = 800;
-	this.height = 500
+	this.height = 330;
 	this.top    = this.left = 350;
 	this.swind.close = ( this.swind.hide = 0 )+1;
 	
