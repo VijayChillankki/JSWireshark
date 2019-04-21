@@ -47,7 +47,7 @@ firefox exception
 /*
 	23/05/2016 btn_s from img window_button_ctrl
 */	
-.btn_s{ display:inline-block; background-image: url( '../icon/window_button_ctrl.png' ); width:16px !important; height:17px !important; background-repeat:no-repeat; margin:4px 0; }
+.btn_s{ display:inline-block; background-image: url( '/jwireshark/wos/icon/window_button_ctrl.png' ); width:16px !important; height:17px !important; background-repeat:no-repeat; margin:4px 0; }
 
 .close:hover,.hide:hover, .rsz:hover{ background-position-x:-18px;}
 .close{ background-position-y:0;}
