@@ -309,7 +309,7 @@ net = {
 		
 		// itemsinfo
 		this.items.update( j, [,,
-			net.macAddrToStr( frm.eth.hdw_src_addr ),
+			net.macAddrToStr( frm.eth.hdw_src_addr ),,
 			net.macAddrToStr( frm.eth.hdw_dst_addr )
 		] );
 
@@ -321,7 +321,7 @@ net = {
 				struct.sizeof( eth_hdr( ) )
 			);
 
-			this.items.update(j, [,,,,"ARP",, 
+			this.items.update(j, [,,,,,,"ARP",, 
 				jno2.vscanf( 
 					string.info.arp[ frm.arp.op ],
 					net.ipToStr( frm.arp.ip_src_addr ),
@@ -347,7 +347,9 @@ this.stat.puship( eth.eth_type, "dst", frm );
 			// itemsinfo
 			this.items.update( j, [,,
 				tmp === "ipv4" ? net.ipToStr( frm[ tmp ].ip_src_addr ) : net.ipv6AddrToStr( frm[ tmp ].src_addr ),
-				tmp === "ipv4" ? net.ipToStr( frm[ tmp ].ip_dst_addr ) : net.ipv6AddrToStr( frm[ tmp ].dst_addr )
+				'0',
+				tmp === "ipv4" ? net.ipToStr( frm[ tmp ].ip_dst_addr ) : net.ipv6AddrToStr( frm[ tmp ].dst_addr ),
+				'0'
 			] );
 				
 			off += struct.sizeof( __s( ) ); 
@@ -389,8 +391,9 @@ this.stat.puship( eth.eth_type, "dst", frm );
 			off += struct.sizeof( __s( ) );
 			
 			if( __sn == "tcp" ){
-			this.items.update(j, [,,,,,, 
-				jno2.vscanf( 
+			console.log('TCP PACKET',frm.tcp);
+			this.items.update(j, [,,,frm.tcp.port_src,,frm.tcp.port_dst,,,
+				jno2.vscanf(
 					string.info.tcp[0],
 					frm.tcp.port_src,
 					frm.tcp.port_dst,
@@ -398,19 +401,17 @@ this.stat.puship( eth.eth_type, "dst", frm );
 			) ] );
 			}
 			if( __sn == "udp" && frm.udp.port_src == 53  ){
-				//console.log( frm.udp );
-				this.items.update(j, [,,,,,, 
-				jno2.vscanf( 
+				this.items.update(j, [,,,,,,,,
+				jno2.vscanf(
 					string.info.dns[0],
 					"",255, ""
 				) ] );
 			}
 			//
 			this.items.class( j, 
-				
 				__sn == "tcp" && ( frm[ __sn ].port_dst == 80 || frm[ __sn ].port_dst == 443 ) ? "http" : __sn 
 			);
-			this.items.update(j, [,,,, 
+			this.items.update(j, [,,,,,, 
 				__sn == "tcp" && tcp_port[ frm[ __sn ].port_dst ] ?
 				tcp_port[ frm[ __sn ].port_dst ] :
 				__sn == "udp" && udp_port[ frm[ __sn ].port_dst ] ?
@@ -418,6 +419,13 @@ this.stat.puship( eth.eth_type, "dst", frm );
 				__sn.toUpperCase( ) 
 
 			] );
+			// UDP PORTS
+			if( __sn == "udp" ){
+				console.log( 'UDP PACKET!',frm.udp );
+				this.items.update(j, [,,,frm.udp.port_src.toString(),,frm.udp.port_dst.toString()
+				] );
+			}
+
 
 		
 		// HomePlug Protocol
@@ -431,15 +439,14 @@ this.stat.puship( eth.eth_type, "dst", frm );
 				struct.sizeof( eth_hdr( ) )
 			);
 
-
-			this.items.update(j, [,,,,protocolType[ eth.eth_type ] ,, string.info.homeplug[ eth.eth_type ] ]);
+			this.items.update(j, [,,,,,,protocolType[ eth.eth_type ] ,, string.info.homeplug[ eth.eth_type ] ]);
 		// ATA Protocol	
 		}else if( eth.eth_type === 0x88A2 ){
 
 		}else
 		this.items.update(
 			j,
-			[,,,,"Unknow",, "unknown" ]
+			[,,,,,,"Unknow",, "unknown" ]
 		);
 		
 		//console.log( frm );

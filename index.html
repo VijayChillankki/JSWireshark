@@ -401,10 +401,11 @@ o.loadfile = function( filename, freader ){
 			try{
 				libw.statistic( this.stat = {} );
 				while( this.data.frame[ i ] ){
-			
+					console.log('FRAME',i,this.data.frame[i])
+					var timestamp = parseInt(this.data.frame[i].ts_sec + "" + this.data.frame[i].ts_usec); // 0.000000
 					this.items.add(
 						[ 
-						i+1,"0.000000",,,, 
+						i+1,timestamp,,,,,, 
 						( this.data.frame[i].packet_len || this.data.frame[i].orig_len ),
 						,], i
 					);
@@ -566,7 +567,9 @@ return function( slf ){
 				{ name: "No.", width:"75", min:75 },
 				{ name: "Time", width:"150" },
 				{ name: "Source",width:"200", },
+				{ name: "SPort",width:"75", },
 				{ name: "Destination", width:"200", },
+				{ name: "DPort", width:"75", },
 				{ name: "Protocol", width:"80", },
 				{ name: "Length",width:"75", },
 				{ name: "Info", width:"400", }
