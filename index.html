@@ -433,13 +433,11 @@ o.loadfile = function( filename, freader ){
 
 o.loadapi = function( filename, freader, query ){
 	var tmp,k,i=0;
-
 	if( ( tmp = (/^(.+)\.(\w{1,})$/).exec( filename ) ) && this.acceptedExt.indexOf( tmp[ 2 ] ) > -1 ){
 					
 	        // set title & enabled menu			
 	        this.title( "JS-Wireshark - "+filename, 0x02 );
 	        this.getModule("menu").any("a>1",function( btn ){ btn.disabled( 0 ); });
-
 		var freader;
                 fetch('//192.168.88.245:3000/?query='+query, {
                         method: 'GET',
@@ -451,6 +449,7 @@ o.loadapi = function( filename, freader, query ){
 			// Convert to Binary
 			var freader = String.fromCharCode.apply(null, new Uint16Array(result.value));
 			// read	
+			this.data = false;
 			this.format[ tmp[ 2 ].toLowerCase( ) ].call(
 				this,
 				freader
@@ -488,7 +487,9 @@ o.loadapi = function( filename, freader, query ){
 					};console.log( this );
 				}catch(e){ console.log( e);};
 				
-				libw.hexdump( this.find(".dump_w_"),  this.data.frame[ ( this.selected = 0 ) ].packet , this.opts.dump );
+				if (this.opts && this.opts.dump && this.data.frame[ ( this.selected = 0 ) ] ){
+					libw.hexdump( this.find(".dump_w_"),  this.data.frame[ ( this.selected = 0 ) ].packet , this.opts.dump );
+				}
 				this.enabled = true;		
 			}
 
@@ -536,23 +537,26 @@ return function( slf ){
 		for(var i = 0;i< this.data.framelen; i++ )
 		this.items.rmLine( i );;;
 
-		libw.hexdump( this.find(".dump_w_"), "Open a File !", 16 );
+		libw.hexdump( this.find(".dump_w_"), "Open a File !", 32 );
 		this.data    = null;
 		this.selected = 0;
 		this.enabled = false;
-		this.opts    = { dump:16 };
+		this.opts    = { dump: 32 };
 		this.fd	     = { name:"", ext: "" };
 		this.getModule("menu").any("a>1", function( btn ){
 			btn.disabled( 0 );
 		});
+
 	},
 	/*RELOAD NEW FILE*/
 	reload:function( ){
 	var slf = this;
 
 	if (window.stenoquery) {
+		if(window.stenoquery)(null,slf.raz( ));;;
+		this.opts    = { dump: 32 };
+		this.enabled = true; 
                 slf.stenoquery = window.stenoquery;
-                console.log('hey query!',slf.stenoquery);
                 // do POST query
                 var res = "";
                 slf.busy( 1 );
@@ -563,12 +567,10 @@ return function( slf ){
                         window.stenoquery
                 );
                 slf.busy( 0 );
+		window.stenoquery = false;
                 return;
         }
 		
-
-
-
 	if( this.enabled )
 	req("LprocessManager").createProcess(
 		"msgbox",
