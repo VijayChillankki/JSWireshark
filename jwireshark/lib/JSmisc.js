@@ -38,5 +38,8 @@ var string ={
 		dns:{
 			0x00:"Standard query %c 0x%x02 %c"
 		},
+		sip:{
+			0x00:"Request: %c"
+		},
 	}	
 };

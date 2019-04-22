@@ -269,7 +269,7 @@ tcp_port = {
 
 net = {
 
-	/*toString*/	
+	/*toString*/
 	macAddrToStr:function( ptr ){
 	return jno2.vscanf( 
 		"%h:%h:%h:%h:%h:%h",
@@ -279,7 +279,7 @@ net = {
 	ipv6AddrToStr:function( ptr ){
 	return jno2.vscanf( 
 		"%h%h:%h%h:%h%h:%h%h:%h%h:%h%h:%h%h:%h%h",
-		ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], 
+		ptr[0], ptr[1], ptr[2], ptr[3], ptr[4],
 		ptr[5], ptr[6], ptr[7], ptr[8], ptr[9],
 		ptr[10], ptr[11], ptr[12], ptr[13], ptr[14],ptr[15]
 	 ).replace(/(\:[0]{4})/g,"");
@@ -288,25 +288,24 @@ net = {
 	return ( (( ipuint32 >> 24 )&0xff) +"."+
 		 (( ipuint32 >> 16 )&0xff) +"."+
 		 (( ipuint32 >> 8  )&0xff) +"."+
-		 (( ipuint32 )&0xff));	
+		 (( ipuint32 )&0xff));
 	},
 	htons:function( ip ){
 	return LittleEndian( ip < 0 ? base.hex2dec( base.dec2hext( ip ) ) : ip, 4 );
 	},
 	/*
-	# JSwireshark 
+	# JSwireshark
 	*/
 	readFrame:function( frame, j ){
 		var frm = {}, off, __sn, off = 0,
 		    eth, arp, ipv4, ipv6, tcp;
-		//	
 		// Ethernet structure
 		struct.buffer2struct(
 			frame,
 			frm.eth = eth = eth_hdr( ),
 			0
 		);
-		
+
 		// itemsinfo
 		this.items.update( j, [,,
 			net.macAddrToStr( frm.eth.hdw_src_addr ),,
@@ -321,8 +320,8 @@ net = {
 				struct.sizeof( eth_hdr( ) )
 			);
 
-			this.items.update(j, [,,,,,,"ARP",, 
-				jno2.vscanf( 
+			this.items.update(j, [,,,,,,"ARP",,
+				jno2.vscanf(
 					string.info.arp[ frm.arp.op ],
 					net.ipToStr( frm.arp.ip_src_addr ),
 					frm.arp.op == 1 ? net.ipToStr( frm.arp.ip_dst_addr ) :
@@ -332,18 +331,18 @@ net = {
 
 		// IPV4 & IPV6 Parsing TCP/IP
 		}else if( eth.eth_type === 0x0800 || eth.eth_type === 0x86DD ){
-			
+
 			var tmp = eth.eth_type === 0x0800 ? "ipv4" : "ipv6",
 			    __s = tmp == "ipv4" ? ipv4_hdr : ipv6_hdr, sizeof;
-					
+
 			struct.buffer2struct(
 				frame,
 				frm[ tmp ] = __s( ),
 				off += struct.sizeof( eth_hdr( ) )
 			);
-			
-this.stat.puship( eth.eth_type, "src", frm );
-this.stat.puship( eth.eth_type, "dst", frm );
+
+			this.stat.puship( eth.eth_type, "src", frm );
+			this.stat.puship( eth.eth_type, "dst", frm );
 			// itemsinfo
 			this.items.update( j, [,,
 				tmp === "ipv4" ? net.ipToStr( frm[ tmp ].ip_src_addr ) : net.ipv6AddrToStr( frm[ tmp ].src_addr ),
@@ -379,8 +378,6 @@ this.stat.puship( eth.eth_type, "dst", frm );
 			// Review
 			}else
 			__s = { payload:"" };;
-			
-		
 
 			struct.buffer2struct(
 				frame,
@@ -389,7 +386,7 @@ this.stat.puship( eth.eth_type, "dst", frm );
 			);
 
 			off += struct.sizeof( __s( ) );
-			
+
 			if( __sn == "tcp" ){
 			console.log('TCP PACKET',frm.tcp);
 			this.items.update(j, [,,,frm.tcp.port_src,,frm.tcp.port_dst,,,
@@ -407,8 +404,18 @@ this.stat.puship( eth.eth_type, "dst", frm );
 					"",255, ""
 				) ] );
 			}
+			if( __sn == "udp" && (frm.udp.port_src == 5060 || frm.udp.port_dst == 5060)  ){
+				console.log('DEBUG',frm);
+				var len = frm.udp.length;
+				console.log('SLICE',len,frame.slice( -len  ));
+				this.items.update(j, [,,,,,,,,
+				jno2.vscanf(
+					string.info.sip[0],
+					frame.slice( -len  ).replace(/[^\x00-\x7F]/g, "").replace(/[^ -~]+/g, "")
+				) ] );
+			}
 			//
-			this.items.class( j, 
+			this.items.class( j,
 				__sn == "tcp" && ( frm[ __sn ].port_dst == 80 || frm[ __sn ].port_dst == 443 ) ? "http" : __sn 
 			);
 			// PROTO DETECTION BY PORT
