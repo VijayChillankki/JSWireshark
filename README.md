@@ -9,6 +9,11 @@ npm install
 npm start
 ```
 
+#### Start with PM2
+```
+pm2 start npm -- start
+```
+
 #### Demo
 [Live Demo](https://raw.githack.com/lmangani/JSWireshark/master/index.html#)
 
